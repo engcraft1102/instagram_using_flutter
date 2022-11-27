@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
           )
         ],
       ),
-      body: [Text('홈'), Text('샵')][currentTab],
+      body: [Home(), Text('샵')][currentTab],
       bottomNavigationBar: BottomNavigationBar(
           showSelectedLabels: false,
           showUnselectedLabels: false,
@@ -58,5 +58,36 @@ class InstaBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container();
+  }
+}
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+        itemCount: 3,
+        itemBuilder: (BuildContext ctx, int idx) {
+          return Column(children: [
+            Image.asset(
+              'winter.webp',
+            ),
+            Container(
+              constraints: BoxConstraints(maxWidth: 600),
+              width: double.infinity,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '좋아요 100',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    Text('글쓴이'),
+                    Text('글내용')
+                  ]),
+            )
+          ]);
+        });
   }
 }
