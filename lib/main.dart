@@ -1,7 +1,12 @@
+// ignore_for_file: unused_import
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:instagram/style.dart' as style;
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+// ignore: unused_import
+import 'dart:io';
 
 void main() {
   runApp(MaterialApp(
@@ -22,6 +27,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   int currentTab = 0;
   var data = [];
+  var userImage;
 
   getData() async {
     final response = await http
@@ -59,10 +65,18 @@ class _MyAppState extends State<MyApp> {
         actions: [
           IconButton(
               icon: Icon(Icons.add_box_outlined),
-              onPressed: () {
-                // Navigator.pushNamed(context, '/upload');
+              onPressed: () async {
+                var imgPicker = ImagePicker();
+                var image =
+                    await imgPicker.pickImage(source: ImageSource.gallery);
+                setState(() {
+                  userImage = File(image!.path);
+                });
+
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => Upload()));
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Upload(userImage: userImage)));
               })
         ],
       ),
@@ -177,7 +191,9 @@ class _HomeState extends State<Home> {
 }
 
 class Upload extends StatelessWidget {
-  const Upload({Key? key}) : super(key: key);
+  const Upload({Key? key, this.userImage}) : super(key: key);
+  final userImage;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -185,6 +201,7 @@ class Upload extends StatelessWidget {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Image.file(userImage),
             Text('이미지업로드화면'),
             IconButton(
                 onPressed: () {
