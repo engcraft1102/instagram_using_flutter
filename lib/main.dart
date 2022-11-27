@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:instagram/style.dart' as style;
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MaterialApp(
@@ -17,6 +20,26 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int currentTab = 0;
+  var data = [];
+
+  getData() async {
+    final response = await http
+        .get(Uri.parse('https://codingapple1.github.io/app/data.json'));
+    if (response.statusCode == 200) {
+      setState(() {
+        data = jsonDecode(response.body);
+      });
+    } else {
+      throw Exception('Failed to load feed');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Launched after first load
+    getData();
+  }
 
   // This widget is the root of your application.
   @override
@@ -33,7 +56,7 @@ class _MyAppState extends State<MyApp> {
           )
         ],
       ),
-      body: [Home(), Text('샵')][currentTab],
+      body: [Home(data: data), Text('샵')][currentTab],
       bottomNavigationBar: BottomNavigationBar(
           showSelectedLabels: false,
           showUnselectedLabels: false,
@@ -61,33 +84,45 @@ class InstaBottomNav extends StatelessWidget {
   }
 }
 
-class Home extends StatelessWidget {
-  const Home({super.key});
+class MyWidget extends StatelessWidget {
+  const MyWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: 3,
-        itemBuilder: (BuildContext ctx, int idx) {
-          return Column(children: [
-            Image.asset(
-              'winter.webp',
-            ),
-            Container(
-              constraints: BoxConstraints(maxWidth: 600),
-              width: double.infinity,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '좋아요 100',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    Text('글쓴이'),
-                    Text('글내용')
-                  ]),
-            )
-          ]);
-        });
+    return Container();
+  }
+}
+
+class Home extends StatelessWidget {
+  const Home({super.key, this.data});
+  final data;
+
+  @override
+  Widget build(BuildContext context) {
+    if (data.isNotEmpty) {
+      return ListView.builder(
+          itemCount: 3,
+          itemBuilder: (BuildContext ctx, int idx) {
+            return Column(children: [
+              Image.network(data[idx]['image']),
+              Container(
+                constraints: BoxConstraints(maxWidth: 600),
+                width: double.infinity,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '좋아요 100',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      Text(data[idx]['user']),
+                      Text(data[idx]['content'])
+                    ]),
+              )
+            ]);
+          });
+    } else {
+      return CircularProgressIndicator();
+    }
   }
 }
