@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:instagram/style.dart' as style;
 import 'package:http/http.dart' as http;
@@ -34,6 +33,12 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  addData(post) {
+    setState(() {
+      data.add(post);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -56,7 +61,7 @@ class _MyAppState extends State<MyApp> {
           )
         ],
       ),
-      body: [Home(data: data), Text('샵')][currentTab],
+      body: [Home(data: data, addData: addData), Text('샵')][currentTab],
       bottomNavigationBar: BottomNavigationBar(
           showSelectedLabels: false,
           showUnselectedLabels: false,
@@ -93,18 +98,54 @@ class MyWidget extends StatelessWidget {
   }
 }
 
-class Home extends StatelessWidget {
-  const Home({super.key, this.data});
+class Home extends StatefulWidget {
+  const Home({super.key, this.data, this.addData});
   final data;
+  final addData;
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  var scroll = ScrollController();
+  var currentPostNum = 3;
+  var maxPostNum = 5;
+
+  getMore() async {
+    if (currentPostNum == maxPostNum) return;
+
+    setState(() {
+      currentPostNum++;
+    });
+    final response = await http.get(Uri.parse(
+        'https://codingapple1.github.io/app/more${currentPostNum - 3}.json'));
+    if (response.statusCode == 200) {
+      widget.addData(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load feed');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    scroll.addListener(() {
+      if (scroll.position.pixels == scroll.position.maxScrollExtent) {
+        getMore();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (data.isNotEmpty) {
+    if (widget.data.isNotEmpty) {
       return ListView.builder(
-          itemCount: 3,
+          itemCount: widget.data.length,
+          controller: scroll,
           itemBuilder: (BuildContext ctx, int idx) {
             return Column(children: [
-              Image.network(data[idx]['image']),
+              Image.network(widget.data[idx]['image']),
               Container(
                 constraints: BoxConstraints(maxWidth: 600),
                 width: double.infinity,
@@ -112,11 +153,11 @@ class Home extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '좋아요 100',
+                        '좋아요 ${widget.data[idx]['likes']}',
                         style: TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      Text(data[idx]['user']),
-                      Text(data[idx]['content'])
+                      Text(widget.data[idx]['user']),
+                      Text(widget.data[idx]['content'])
                     ]),
               )
             ]);
