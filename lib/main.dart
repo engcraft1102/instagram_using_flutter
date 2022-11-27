@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 void main() {
   runApp(MaterialApp(
     theme: style.theme,
+    // initialRoute: '/',
+    // routes: {'/': (context) => MyApp(), '/upload': (context) => Upload()}
     home: MyApp(),
   ));
 }
@@ -56,9 +58,12 @@ class _MyAppState extends State<MyApp> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.add_box_outlined),
-            onPressed: () {},
-          )
+              icon: Icon(Icons.add_box_outlined),
+              onPressed: () {
+                // Navigator.pushNamed(context, '/upload');
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => Upload()));
+              })
         ],
       ),
       body: [Home(data: data, addData: addData), Text('샵')][currentTab],
@@ -168,5 +173,25 @@ class _HomeState extends State<Home> {
     } else {
       return CircularProgressIndicator();
     }
+  }
+}
+
+class Upload extends StatelessWidget {
+  const Upload({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('이미지업로드화면'),
+            IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(Icons.close)),
+          ],
+        ));
   }
 }
