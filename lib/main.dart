@@ -111,15 +111,18 @@ class _HomeState extends State<Home> {
   var scroll = ScrollController();
   var currentPostNum = 3;
   var maxPostNum = 5;
+  var apiPending = false;
 
   getMore() async {
-    if (currentPostNum == maxPostNum) return;
+    if (currentPostNum == maxPostNum || apiPending) return;
 
     setState(() {
       currentPostNum++;
     });
+    apiPending = true;
     final response = await http.get(Uri.parse(
         'https://codingapple1.github.io/app/more${currentPostNum - 3}.json'));
+    apiPending = false;
     if (response.statusCode == 200) {
       widget.addData(jsonDecode(response.body));
     } else {
