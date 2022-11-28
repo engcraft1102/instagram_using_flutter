@@ -8,6 +8,31 @@ import 'package:image_picker/image_picker.dart';
 // ignore: unused_import
 import 'dart:io';
 
+class Post {
+  int id;
+  File image;
+  int likes;
+  String date;
+  String content;
+  bool liked;
+  String user;
+
+  Post(this.id, this.image, this.likes, this.date, this.content, this.liked,
+      this.user);
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'image': image,
+      'likes': likes,
+      'date': date,
+      'content': content,
+      'liked': liked,
+      'user': user
+    };
+  }
+}
+
 void main() {
   runApp(MaterialApp(
     theme: style.theme,
@@ -28,6 +53,7 @@ class _MyAppState extends State<MyApp> {
   int currentTab = 0;
   var data = [];
   var userImage;
+  var userContent;
 
   getData() async {
     final response = await http
@@ -41,9 +67,24 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  changeUserContent(String content) {
+    setState(() {
+      userContent = content;
+    });
+  }
+
   addData(post) {
     setState(() {
       data.add(post);
+    });
+  }
+
+  addUserData() {
+    var newData = Post(
+        data.length, userImage, 5, 'July 32', userContent, false, 'John Doe');
+    // print(newData);
+    setState(() {
+      data.insert(0, newData.toMap());
     });
   }
 
@@ -72,11 +113,13 @@ class _MyAppState extends State<MyApp> {
                 setState(() {
                   userImage = File(image!.path);
                 });
-
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => Upload(userImage: userImage)));
+                        builder: (context) => Upload(
+                            userImage: userImage,
+                            changeUserContent: changeUserContent,
+                            addUserData: addUserData)));
               })
         ],
       ),
@@ -167,7 +210,9 @@ class _HomeState extends State<Home> {
           controller: scroll,
           itemBuilder: (BuildContext ctx, int idx) {
             return Column(children: [
-              Image.network(widget.data[idx]['image']),
+              widget.data[idx]['image'].runtimeType == String
+                  ? Image.network(widget.data[idx]['image'])
+                  : Image.file(widget.data[idx]['image']),
               Container(
                 constraints: BoxConstraints(maxWidth: 600),
                 width: double.infinity,
@@ -191,18 +236,36 @@ class _HomeState extends State<Home> {
 }
 
 class Upload extends StatelessWidget {
-  const Upload({Key? key, this.userImage}) : super(key: key);
+  const Upload(
+      {Key? key, this.userImage, this.changeUserContent, this.addUserData})
+      : super(key: key);
   final userImage;
+  final changeUserContent;
+  final addUserData;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          actions: [
+            IconButton(
+                onPressed: () {
+                  addUserData();
+                },
+                icon: Icon(Icons.file_upload_outlined))
+          ],
+        ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.file(userImage),
+            Container(
+              constraints: BoxConstraints(maxHeight: 300),
+              child: Image.file(userImage),
+            ),
             Text('이미지업로드화면'),
+            TextField(
+              onChanged: (value) => changeUserContent(value),
+            ),
             IconButton(
                 onPressed: () {
                   Navigator.pop(context);
