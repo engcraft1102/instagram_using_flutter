@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:instagram/store.dart';
+import 'package:instagram/wrapper.dart';
 import 'package:provider/provider.dart';
 
 class Profile extends StatelessWidget {
@@ -7,12 +8,35 @@ class Profile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.watch<Store2>().name),
-      ),
-      body: ProfileHeader(),
-    );
+    return StatefulWrapper(
+        onInit: context.read<Store2>().getData(),
+        child: Scaffold(
+            appBar: AppBar(
+              title: Text(context.watch<Store2>().name),
+            ),
+            body: CustomScrollView(
+              slivers: [
+                ProfileHeader(),
+                SliverGrid(
+                  delegate: SliverChildBuilderDelegate(
+                      (context, index) => Container(
+                            color: Colors.grey,
+                            // child: context
+                            //         .watch<Store2>()
+                            //         .profileImage
+                            //         .isNotEmpty
+                            //     ? Image.network(
+                            //         context.watch<Store2>().profileImage[index])
+                            //     : Text('loading'),
+                            child: Image.network(
+                                context.watch<Store2>().profileImage[index]),
+                          ),
+                      childCount: context.watch<Store2>().profileImage.length),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2),
+                ),
+              ],
+            )));
   }
 }
 
@@ -21,7 +45,8 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+    return SliverToBoxAdapter(
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
       CircleAvatar(
         radius: 30,
         backgroundColor: Colors.grey,
@@ -33,6 +58,6 @@ class ProfileHeader extends StatelessWidget {
         },
         child: Text('팔로우'),
       ),
-    ]);
+    ]));
   }
 }
