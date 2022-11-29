@@ -6,37 +6,48 @@ import 'package:provider/provider.dart';
 class Profile extends StatelessWidget {
   const Profile({Key? key}) : super(key: key);
 
+  final bool _pinned = true;
+  final bool _snap = false;
+  final bool _floating = false;
+
   @override
   Widget build(BuildContext context) {
     return StatefulWrapper(
         onInit: context.read<Store2>().getData(),
         child: Scaffold(
-            appBar: AppBar(
-              title: Text(context.watch<Store2>().name),
-            ),
             body: CustomScrollView(
-              slivers: [
-                ProfileHeader(),
-                SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                      (context, index) => Container(
-                            color: Colors.grey,
-                            // child: context
-                            //         .watch<Store2>()
-                            //         .profileImage
-                            //         .isNotEmpty
-                            //     ? Image.network(
-                            //         context.watch<Store2>().profileImage[index])
-                            //     : Text('loading'),
-                            child: Image.network(
-                                context.watch<Store2>().profileImage[index]),
-                          ),
-                      childCount: context.watch<Store2>().profileImage.length),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2),
-                ),
-              ],
-            )));
+          slivers: <Widget>[
+            SliverAppBar(
+              pinned: _pinned,
+              snap: _snap,
+              floating: _floating,
+              expandedHeight: 160.0,
+              flexibleSpace: const FlexibleSpaceBar(
+                title: Text('SliverAppBar'),
+                background: FlutterLogo(),
+              ),
+            ),
+            ProfileHeader(),
+            SliverGrid(
+              delegate: SliverChildBuilderDelegate(
+                  (context, index) => Container(
+                        color: Colors.grey,
+                        // child: context
+                        //         .watch<Store2>()
+                        //         .profileImage
+                        //         .isNotEmpty
+                        //     ? Image.network(
+                        //         context.watch<Store2>().profileImage[index])
+                        //     : Text('loading'),
+                        child: Image.network(
+                            context.watch<Store2>().profileImage[index]),
+                      ),
+                  childCount: context.watch<Store2>().profileImage.length),
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+            ),
+          ],
+        )));
   }
 }
 
