@@ -2,43 +2,27 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:instagram/class.dart';
+import 'package:instagram/profile.dart';
+import 'package:instagram/store.dart';
 import 'package:instagram/style.dart' as style;
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-// ignore: unused_import
 import 'dart:io';
-
-class Post {
-  int id;
-  File image;
-  int likes;
-  String date;
-  String content;
-  bool liked;
-  String user;
-
-  Post(this.id, this.image, this.likes, this.date, this.content, this.liked,
-      this.user);
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'image': image,
-      'likes': likes,
-      'date': date,
-      'content': content,
-      'liked': liked,
-      'user': user
-    };
-  }
-}
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MaterialApp(
-    theme: style.theme,
-    // initialRoute: '/',
-    // routes: {'/': (context) => MyApp(), '/upload': (context) => Upload()}
-    home: MyApp(),
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: ((context) => Store1())),
+      ChangeNotifierProvider(create: ((context) => Store2())),
+    ],
+    child: MaterialApp(
+      theme: style.theme,
+      // initialRoute: '/',
+      // routes: {'/': (context) => MyApp(), '/upload': (context) => Upload()}
+      home: MyApp(),
+    ),
   ));
 }
 
@@ -219,11 +203,21 @@ class _HomeState extends State<Home> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      GestureDetector(
+                        child: Text(widget.data[idx]['user']),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Profile(),
+                              ));
+                        },
+                      ),
                       Text(
                         '좋아요 ${widget.data[idx]['likes']}',
                         style: TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      Text(widget.data[idx]['user']),
+                      Text(widget.data[idx]['date']),
                       Text(widget.data[idx]['content'])
                     ]),
               )
